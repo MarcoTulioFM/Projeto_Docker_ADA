@@ -4,9 +4,6 @@ networks:
   mynetwork:
     driver: bridge
 
-volumes:
-  db_database:
-
 
 services:
   front:
@@ -19,6 +16,8 @@ services:
       - "80:80"
     networks:
       - mynetwork
+    depends_on:
+      - db
 
   back:
     build:
