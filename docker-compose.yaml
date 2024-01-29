@@ -1,0 +1,65 @@
+version: '3.8'
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  db_database:
+
+
+services:
+  front:
+    build:
+      context: ./front/
+      dockerfile: Dockerfile
+    volumes:
+      - ./front/:/usr/share/nginx/html/
+    ports:
+      - "80:80"
+    networks:
+      - mynetwork
+
+  back:
+    build:
+      context: ./back/
+      dockerfile: Dockerfile
+    volumes:
+      - ./back/:/var/www/html/
+    ports:
+      - "8096:80"
+    networks:
+      - mynetwork
+    depends_on:
+      - db
+
+  db:
+    image: mariadb
+    volumes:
+      - ./banco:/var/lib/mysql
+      - ./dump:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 2474
+      MYSQL_DATABASE: server
+      MYSQL_USER: marcotfm
+      MYSQL_PASSWORD: 2474
+    restart: always
+    networks:
+      - mynetwork
+
+
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: marcotfm
+      PMA_PASSWORD: 2474
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
